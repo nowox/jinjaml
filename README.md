@@ -336,3 +336,98 @@ The allowed directives are:
 - `tail` Additionnal data are added at the end of the map or the list
 - `sort` Normal sort
 - `natsort` Natural sort (default action for map and list)
+- `combine` Combine scalars into a list 
+
+Policies can be applied to a particular type:
+
+```
+<>: 
+   merge:
+      file: 'foo.yml'
+      type-policy:
+         map: our
+         seq: their
+         int: ignore
+         str: combine
+```
+
+Cross-references:
+
+YAML allows references inside a file such as: 
+
+```
+---
+foo: &foo_anchor
+   - 1
+   - 2
+   - 3
+bar: *foo_anchor
+```
+
+In Jin<>JAML, anchors can be used across files. They will be resolved prior to any merge or template fill in. 
+
+```
+# a.yml
+---
+foo: &anchor
+   - 1
+   - 2
+```
+
+```
+# b.yml
+<>: {merge: a.yml}
+bar: *anchor
+```
+
+#### Templates
+Jinja2 tags `{{ }}` can be used inside a YAML file. The current context is seen by the parser: 
+
+```
+---
+foo: 
+   baz: 2
+bar: {{ foo.baz + 4 }}
+```
+
+Leads to `{foo: {baz: 2}, bar: 6}`. 
+
+The `import` directive allows to make visible another `YAML` file in the current context:
+
+
+```
+# a.yml
+---
+foo: 42
+```
+
+```
+# b.yml
+---
+<>: {import: a.yml}
+bar: {{ foo }}
+```
+
+Gives `{bar: 42}`
+
+### Command line usage
+The unique command `jinjaml` is fairly easy to use. The trivial case is to evaluate a template: 
+
+```
+$ jinjaml foo.h.jml > foo.h
+```
+
+The data-source can be manually specified: 
+
+```
+$ jinjaml --data=foo.yml foo.h.jml > foo.h
+```
+
+**Jin<>JAML** can be used as simple YAML object browser: 
+
+```
+$ jinjaml -q foo.yml foo.bar.baz
+42
+```
+
+
