@@ -192,3 +192,76 @@ capsules:
      color: purple
      id: 0xACF23D     
 ```
+
+## Usage
+
+### Jinja Templates
+
+#### Link a data-source to the template
+
+The directive can take place anythere in the template. However, it would be better to place it at the beginning
+```
+{% source "foo.yaml" %} 
+```
+
+Optionally, the source can be imported in a namespace
+```
+{% source "foo.yaml", foo %}
+```
+
+#### Custom Helpers/Filters
+Sometime, its necessary to process the data in a more complex manner. Two options are available.
+
+A filter can be added directly from the template
+```
+{% addfilter "camelcase.py", camelize %}
+```
+
+Or the filter can be embedded into the template. It is written in pure python
+```
+{% addfilter %}
+def foo(x): # Foo will be accessible as a filter with the same name
+   return hex((x + 42) & 0x123 )
+{% endaddfilter %}
+```
+
+### YAML extensions
+
+#### Validation scheme
+The validation scheme is declared as a YAML tag named `!schema!` located at the beginning of the file. Defining a validation schema is optional, but strongly advised as it can serve as documentation.
+
+```
+%YAML 1.2
+%TAG !schema! http://path/to/the/schema.yml
+---
+```
+
+This can also be an absolute or a relative filesystem path
+```
+%YAML 1.2
+%TAG !schema! ./schema.yml
+---
+```
+
+The format and the version of the schema validation is given as a tag to the YAML content. It can be omitted
+```
+%YAML 1.2
+--- !pykwalify,1.5
+```
+
+#### Magic <>
+Jin<>JAML will use the information inside the `<>` key to link, merge, apply a template or even define a merge priority across YAML files. This key can be located anyware in the YAML file and it is optional. 
+
+The supported options are: 
+
+Import other YAML under a particular namespace. If the `as` is omitted, the dataset will be imported without namespace. In case of conflicts, the priority is always the local context.
+
+```
+---
+<>: 
+   import: 
+      file: 'foo.yml'
+      as: myfoo
+bar: "The bar value is {{ myfoo.bar_value }}."
+```
+
