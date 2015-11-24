@@ -122,6 +122,72 @@ char *norf;
 
 ## A bolder example: The expresso machine
 
-We are a company that manufacture expresso machines. Each expresso machine is based on the exact same hardware, but it comes in various models. Each model have a common configuration but particular   
+Let's consider we are a company that manufacture expresso machines. Each expresso machine is based on the exact same electronic that comes in various models and each models have a particular configuration. 
 
+The configuration is for example: 
+
+- The available features
+- The menu options
+- The temperature and the pressure for each coffee brends
+- The color code of the capsules
+
+Each *firmware* will be build witht the enabled features for the concerned product. Menu, temperatures and other parameters are embedded into the C/C++ code base. The pressure and temperature are used for the documentation.
+
+The complete configuration could be stored into a database such as sqlite or mongodb, however, it is eaiser here to store these files as plain text. The configuration can be under Git control and diff, compare and merge become very easy. 
+
+So, we have here different files: 
+
+```
+# arch.yml
+%YAML 1.2
+%TAG  !schema! arch.schema.yml
+---
+brand: Exos
+product_name: Expresso Maker
+proc: ARM Cortex M0
 ...
+```
+
+```
+# products.yml
+%YAML 1.2
+%TAG !schema! products.schema.yml
+---
+<>:
+   import: {filename: arch.yml; as: arch}
+
+products:   
+   22: 
+      name: {{ arch.brand }} Galaxy Coffee Maker
+      desc: Design coffee maker with large water tank.
+      water_tank: 1000 # ml
+   23: &mercury
+      name: {{ arch.brand }} Mercury Maker
+      desc: Compact maker for small espresso only.
+      water_tank: 350 # ml
+   29: 
+      <<: *mercury
+      name: {{ products.22.name }} Deluxe Edition
+...
+```
+
+```
+# capsules.yml
+---
+<>:
+   merge: {filename: 'capsules_limited.yml'}
+   
+capsules:   
+   - name: Roma
+     temperature: 89
+     pressure: 17.5
+     color: brown
+     id: 0x2918CF
+     
+     
+   - name: Escobar
+     temperature: 73
+     pressure: 15
+     color: purple
+     id: 0xACF23D     
+```
