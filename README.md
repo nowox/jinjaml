@@ -265,3 +265,74 @@ Import other YAML under a particular namespace. If the `as` is omitted, the data
 bar: "The bar value is {{ myfoo.bar_value }}."
 ```
 
+If no namespace is required, this sugar syntax will work: `import: foo.yml`
+
+Merges:
+
+A YAML file can be merged into another one using the `merge` directive. By default the following rules apply:
+
+- A scalar entry will be overwritten by the local context
+- A list is merged while preserving the natural alphabetic (`natsort`) order. 
+- The keys of a map entry are kept into a natural alphabetic order. 
+- An empty scalar or map has no effect
+
+Fine behavior for certain elements can be defined within the `policy` key:
+
+```
+---
+<>:
+   merge:
+      file: 'foo.yml'
+      policy: 
+         foo:
+            bar: our
+            baz: their
+         list: ignore
+         qux: tail
+         quux: head
+         fubar: sort
+         
+foo:
+   bar: {a: 1, b:2, c:3} 
+   baz: {m: 13, n: 14, o: 15}
+   qux: [k, b]
+   quux: [a, b]
+   fubar: [c, e, z, u]
+```   
+   
+```
+# foo.yml
+---
+foo:
+   bar: {c:3, d:4, e:5} 
+   baz: {o: 15, q: 16, r: 17}
+   list: [23, 42]
+   qux: [b, c, d]
+   quux: [e, f]
+   fubar: [a, e, z, t]
+   bam: 0x20
+```   
+
+The final dataset will be
+
+```
+{foo: 
+   {bar: {a: 1, b:2, c:3}, 
+    baz: {o: 15, q: 16, r: 17}, 
+    qux: [k, b, c, d], 
+    quux: [e, f, a, b], 
+    fubar: [a, c, e, t, u, z], 
+    bam: 0x20
+    }
+}
+```
+
+The allowed directives are: 
+
+- `ignore` Not imported
+- `our` Our datas mask theirs (default action for scalars)
+- `their` Their datas mask ours
+- `head` Additionnal data are added at the beginning of the map or the list
+- `tail` Additionnal data are added at the end of the map or the list
+- `sort` Normal sort
+- `natsort` Natural sort (default action for map and list)
