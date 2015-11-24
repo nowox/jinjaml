@@ -1,7 +1,7 @@
 # Jin<>JAML
-An ambitious standalone templating engine for misc applications (C/C++, HTML, LaTeX, ...)
+An ambitious standalone templating engine for various applications (Shell programming, C/C++, HTML, LaTeX, CI, configuration...)
 
-## What is Jin<>JAML?
+## What does Jin<>JAML do?
 JinJAML is a standalone command line tools (also available as module) written in [Python 2.7](https://www.python.org/download/releases/2.7/) allowing to populate templates with data issues from YAML files. 
 
 This modules is based on [jinja2](http://jinja.pocoo.org/docs/dev/) and [HiYaPyCo](https://github.com/zerwes/hiyapyco). YAML files are validated using [pyKwalify](https://github.com/Grokzen/pykwalify). 
@@ -10,11 +10,11 @@ This modules is based on [jinja2](http://jinja.pocoo.org/docs/dev/) and [HiYaPyC
         .-------------------------.
         |                         v
       .---.                     .---.
-      |YML| <----------.        |XSD| (Kwalify Syntax)
+      |YML| <----------.        |XSD| (PyKwalify Syntax)
       '---'            |        '---'
 config.default.yml     |   config.schema.yml
-                       |                       .---------.
-      .---. -----------'        .---.          |         |        .---.
+        .--------------'                       .---------.
+      .---.                     .---.          |         |        .---.
       |YML| <-------------------|JML|--------->| JinJAML |------->| H |
       '---'                     '---'          |         |        '---'
     config.yml              template.h.jml     '---------'      template.h
