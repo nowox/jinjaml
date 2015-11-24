@@ -17,7 +17,7 @@ config.default.yml     |   config.schema.yml
       .---. -----------'        .---.          |         |        .---.
       |YML| <-------------------|JML|--------->| JinJAML |------->| H |
       '---'                     '---'          |         |        '---'
-    config.yml             template.h.jml     '---------'      template.h
+    config.yml             template.h.jml      '---------'      template.h
 ```
 
 Initial data are stored into [YAML](http://yaml.org/) files. Additionnaly to the `%YAML 1.2` specs, a YAML file can depend on other YAML files. These files can be used as external namespaces for tags replacement or as dependency. With the latter you can choose from two actions: merge or override. 
