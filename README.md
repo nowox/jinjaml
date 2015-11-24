@@ -1,5 +1,5 @@
 # Jin<>JAML
-Standalone Templating Engine for miscellaneous usages (C/C++, HTML, LaTeX, ...)
+An ambitious standalone templating engine for misc usages (C/C++, HTML, LaTeX, ...)
 
 ## What is Jin<>JAML?
 JinJAML is a standalone command line tools (also available as module) written in [Python 2.7](https://www.python.org/download/releases/2.7/) allowing to populate templates with data issues from YAML files. 
