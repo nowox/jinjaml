@@ -2,29 +2,30 @@
 An ambitious standalone templating engine for various applications (Shell programming, C/C++, HTML, LaTeX, CI, configuration...)
 
 ## What does Jin<>JAML do?
-JinJAML is a standalone command line tools (also available as module) written in [Python 2.7](https://www.python.org/download/releases/2.7/) allowing to populate templates with data issues from YAML files. 
+JinJAML is a standalone command line tool (also available as module) entirely written in [Python 2.7](https://www.python.org/download/releases/2.7/). It allows to render templates with data issued from enhanced YAML files. 
 
-This modules is based on [jinja2](http://jinja.pocoo.org/docs/dev/) and [HiYaPyCo](https://github.com/zerwes/hiyapyco). YAML files are validated using [pyKwalify](https://github.com/Grokzen/pykwalify). 
+The template engine is based on [jinja2](http://jinja.pocoo.org/docs/dev/) and [HiYaPyCo](https://github.com/zerwes/hiyapyco) is used for YAML merge. YAML files are validated using a schema using the [pyKwalify](https://github.com/Grokzen/pykwalify) syntax.
 
+Here is a quick overview of how `jinjaml` works:
 ```
-        .-------------------------.
+        .------refers to---------.
         |                         v
       .---.                     .---.
       |YML| <----------.        |XSD| (PyKwalify Syntax)
       '---'            |        '---'
 config.default.yml     |   config.schema.yml
-        .--------------'                       .---------.
-      .---.                     .---.          |         |        .---.
-      |YML| <-------------------|JML|--------->| JinJAML |------->| H |
-      '---'                     '---'          |         |        '---'
-    config.yml              template.h.jml     '---------'      template.h
+        .----requires--'                       .---------.
+      .---.                     .---.          |         |              .---.
+      |YML| <------requires-----|JML|---feed-->| JinJAML |--generates-->| H |
+      '---'                     '---'          |         |              '---'
+    config.yml              template.h.jml     '---------'            template.h
 ```
 
-Initial data are stored into [YAML](http://yaml.org/) files. Additionnaly to the `%YAML 1.2` specs, a YAML file can depend on other YAML files. These files can be used as external namespaces for tags replacement or as dependency. With the latter you can choose from two actions: merge or override. 
+The initial data are stored into enhanced [YAML](http://yaml.org/) files. The enhancement to the `%YAML 1.2` specs are support for merges, jointures, tags and validation scheme. 
 
-## A simple example
+## Basic example
 
-Here a very basic configuration:
+Consider this very basic configuration:
 ```
 # config.default.yml
 %YAML 1.2
@@ -37,7 +38,7 @@ bar:
 ...
 ```
 
-Which can be validated with a schema:
+It can be validated with a schema (similar to XML XSD schemas):
 ```
 # config.default.yml
 %YAML 1.2
@@ -57,7 +58,7 @@ mapping:
 ...
 ```
 
-A basic configuration can be written that inherit from the default configuration
+A user configuration can take place over the *default* configuration:
 
 ```
 # config.yml
@@ -65,17 +66,16 @@ A basic configuration can be written that inherit from the default configuration
 %TAG  !schema! config.schema.yml
 ---
 <>: # JinJAML magic tag
-   super: {file: config.default.yml; method: merge}
+   merge: config.default.yml
    
 foo: 12
 bar: 
    - quux
    - norf
 other: !!int "{{foo}}"
-...
 ```
 
-Here is the template
+The template is a basic `jinja` template
 
 ```
 {% datasource 'config.yml' %}
@@ -89,7 +89,7 @@ char *{{ b }};
 #endif // _FOO_H_
 ```
 
-At the end, Jin<>JAML will process the template as follow: 
+At the end, **Jin<>JAML** will process the template as follow: 
 
 1. Read the template and check for `datasource`
 2. Read the data source which is `config.yml` and extract the JinJAML `<>:` key
