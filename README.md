@@ -171,6 +171,7 @@ products:
 ...
 ```
 
+The description of the coffee capsules is given with the `capsules.yml` file. The limited edition capsules are located into another file to make easier diff across versions. This second file is merged into the main `capsule.yml` with a `<>` directive. 
 ```
 # capsules.yml
 ---
