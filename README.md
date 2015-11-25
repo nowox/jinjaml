@@ -1,10 +1,10 @@
 # Jin<>JAML
-An ambitious standalone templating engine for various applications (Shell programming, C/C++, HTML, LaTeX, CI, configuration...)
+An ambitious standalone templating engine for assorted languages (Shell programming, C/C++, HTML, LaTeX, CI, configuration...)
 
 ## What does Jin<>JAML do?
-JinJAML is a standalone command line tool (also available as module) entirely written in [Python 2.7](https://www.python.org/download/releases/2.7/). It allows to render templates with data issued from enhanced YAML files. 
+JinJAML is a standalone command line tool also available as module and entirely written in [Python 2.7](https://www.python.org/download/releases/2.7/). It allows to render templates from data expressed in enhanced YAML files. 
 
-The template engine is based on [jinja2](http://jinja.pocoo.org/docs/dev/) and [HiYaPyCo](https://github.com/zerwes/hiyapyco) is used for YAML merge. YAML files are validated using a schema using the [pyKwalify](https://github.com/Grokzen/pykwalify) syntax.
+This template engine is based on [jinja2](http://jinja.pocoo.org/docs/dev/) with minor extensions and [HiYaPyCo](https://github.com/zerwes/hiyapyco) that is used for YAML merge. YAML files can be validated with a schema using the [pyKwalify](https://github.com/Grokzen/pykwalify) syntax.
 
 Here is a quick overview of how `jinjaml` works:
 ```
@@ -21,11 +21,12 @@ config.default.yml     |   config.schema.yml
     config.yml              template.h.jml     '---------'            template.h
 ```
 
-The initial data are stored into enhanced [YAML](http://yaml.org/) files. The enhancement to the `%YAML 1.2` specs are support for merges, jointures, tags and validation scheme. 
+The initial default data are stored into an enhanced [YAML](http://yaml.org/) file which is linked to another config file. These files refer to a validation schema. The datasource is given inside the `.jml` template which is eventually rendered by the **Jin<>JAML** engine. 
+The enhancements to the `%YAML 1.2` specs support merges, jointures, tags and validation schemes. 
 
 ## Basic example
 
-Consider this very basic configuration:
+Consider this very basic configuration file:
 ```
 # config.default.yml
 %YAML 1.2
@@ -38,7 +39,7 @@ bar:
 ...
 ```
 
-It can be validated with a schema (similar to XML XSD schemas):
+It will be validated with a schema (similar to `XML` `XSD/DTD` schemas):
 ```
 # config.default.yml
 %YAML 1.2
@@ -58,7 +59,7 @@ mapping:
 ...
 ```
 
-A user configuration can take place over the *default* configuration:
+A user configuration can override the *default* configuration. This file can in turn fetch data from an other file.
 
 ```
 # config.yml
@@ -66,16 +67,23 @@ A user configuration can take place over the *default* configuration:
 %TAG  !schema! config.schema.yml
 ---
 <>: # JinJAML magic tag
-   merge: config.default.yml
+   merge:  config.default.yml
+   import: {file: arch.yml, as: arch}
    
-foo: 12
+foo: {{ arch.answer }}
 bar: 
    - quux
    - norf
 other: !!int "{{foo}}"
 ```
 
-The template is a basic `jinja` template
+```
+# arch.yml
+---
+answer: 12
+```
+
+The template is a very basic `jinja` template
 
 ```
 {% datasource 'config.yml' %}
