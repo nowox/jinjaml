@@ -438,4 +438,25 @@ Eventually the `<>:` key seems to be the best option so far.
 
 Another point is that tags should be unique and it would not be possible to specify several `%IMPORT` tags. 
 
-Why using a particular `import` directive when jinja tags are allowed? Instead of `import: foo.yml` we can imagine having a `{% import 'foo.yml %}` somewhere in the document. In this case everything become a jinja template. This is a seducing idea because we can also try to 
+Why using a particular `import` directive when jinja tags are allowed? Instead of `import: foo.yml` we can imagine having a `{% import 'foo.yml %}` somewhere in the document. In this case everything become a jinja template. This is a seducing idea because we can also try to keep the YAML files standard YAML files by only adding a jinja layer on the top of it. 
+
+So the `merge` directives would be specifiy on the jinja side with for example: 
+
+```
+# foo.yml
+%YAML 1.2
+{% merge %}
+file: bar.yml
+policies: 
+   foo: ignore
+{% endmerge %}
+{% import 'qux.yml' as qux %}
+---
+foo: 
+   bar: {{ qux.some_key }}
+   {{ qux.key }}: {{ qux.value }}
+qux: {{ append 'qux.yml' }} # Which will append a collection to this node
+```
+
+## Conclusion
+I guess this is the end of the first iteration where new ideas were discussed hereabove. I'll need some time think about it...
