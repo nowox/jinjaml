@@ -59,7 +59,7 @@ mapping:
 ...
 ```
 
-A user configuration can override the *default* configuration. This file can in turn fetch data from an other file.
+A user configuration can override the *default* configuration which can in turn fetch some data from an other file.
 
 ```
 # config.yml
@@ -97,7 +97,7 @@ char *{{ b }};
 #endif // _FOO_H_
 ```
 
-At the end, **Jin<>JAML** will process the template as follow: 
+Eventually **Jin<>JAML** will process the template as follow: 
 
 1. Read the template and check for `datasource`
 2. Read the data source which is `config.yml` and extract the JinJAML `<>:` key
@@ -114,34 +114,21 @@ The resulting dictionary will be:
 {'foo':12; 'bar':['baz','qux','quux','norf']; 'other': 12}
 ```
 
-With this information, the template can be processed:
-
-```
-// Header file (other: 12)
-#ifndef _FOO_H_
-#define _FOO_H_
-#define FOO_SIZE 12
-char *baz;
-char *qux;
-char *quux;
-char *norf;
-#endif // _FOO_H_
-```
-
 ## A bolder example: The expresso machine
 
-Let's consider we are a company that manufacture expresso machines. Each expresso machine is based on the exact same electronic that comes in various models and each models have a particular configuration. 
+Let's now consider we are a company that manufacture expresso machines. Each expresso machine is based on the exact same electronic that comes in various models. Each of these models have a particular configuration. 
 
-The configuration is for example: 
+The configuration can be for instance:
 
 - The available features
 - The menu options
 - The temperature and the pressure for each coffee brends
 - The color code of the capsules
+- The languages
 
-Each *firmware* will be build witht the enabled features for the concerned product. Menu, temperatures and other parameters are embedded into the C/C++ code base. The pressure and temperature are used for the documentation.
+Each *firmware* will be build with the enabled features for the configured product. Menu, temperatures and other parameters are embedded into the C/C++ code base. The pressure and temperature are also used in the user's manual which can be also generated from the sources (from a LaTeX template for example). 
 
-The complete configuration could be stored into a database such as sqlite or mongodb, however, it is eaiser here to store these files as plain text. The configuration can be under Git control and diff, compare and merge become very easy. 
+Of course, we can think differently and put the complete configuration into a database such as sqlite or mongodb. However, it is much easier to store these files as plain text as they can be managed with Git. They can be compared, merged and diff much faster than in a separate database. Last but not least, the configuration evolves with the code base which is often an advantage.  
 
 So, we have here different files: 
 
@@ -275,7 +262,7 @@ bar: "The bar value is {{ myfoo.bar_value }}."
 
 If no namespace is required, this sugar syntax will work: `import: foo.yml`
 
-Merges:
+#### Merges
 
 A YAML file can be merged into another one using the `merge` directive. By default the following rules apply:
 
@@ -359,7 +346,7 @@ Policies can be applied to a particular type:
          str: combine
 ```
 
-Cross-references:
+#### Cross-references
 
 YAML allows references inside a file such as: 
 
@@ -438,4 +425,17 @@ $ jinjaml -q foo.yml foo.bar.baz
 42
 ```
 
+## Discussion
+It was initially thought to express all the enhanced YAML directives as custom `%` names such as `%MERGE` or `%IMPORT`. However some implementation looks capricious with those tags and advanced hierachized merge policy cannot be easily set with single line directives. 
 
+Some time was spent trying to use `!!custom:tags` to set properties to YAML nodes. These tags are not well interpreted with `PyYAML` and lead to a `ConstructorError` exception. 
+
+Directives could also be specified in a comment such as `foo: bar #<> ours`. However comment should remain plain comments. 
+
+It can be also imagined to use an external file for the merge policies set with a tag: `%MERGE {file: foo.yml rules: foo.merge.rules.yml}`
+
+Eventually the `<>:` key seems to be the best option so far. 
+
+Another point is that tags should be unique and it would not be possible to specify several `%IMPORT` tags. 
+
+Why using a particular `import` directive when jinja tags are allowed? Instead of `import: foo.yml` we can imagine having a `{% import 'foo.yml %}` somewhere in the document. In this case everything become a jinja template. This is a seducing idea because we can also try to 
